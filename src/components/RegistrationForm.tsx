@@ -108,7 +108,13 @@ export default function RegistrationForm() {
     planOperator: "",
   });
 
-  const totalSteps = 4;
+  const totalSteps = 5;
+
+  const operatorColors: Record<string, { bg: string; text: string; border: string }> = {
+    VIVO: { bg: "bg-purple-600", text: "text-white", border: "border-purple-600" },
+    TIM: { bg: "bg-blue-600", text: "text-white", border: "border-blue-600" },
+    CLARO: { bg: "bg-red-600", text: "text-white", border: "border-red-600" },
+  };
 
   const formatCPF = (value: string) => {
     return value
@@ -215,11 +221,21 @@ export default function RegistrationForm() {
       }
     }
     if (step === 4) {
-      if (!formData.cep || !formData.street || !formData.city || !formData.state || !formData.deliveryMethod) {
+      if (!formData.deliveryMethod) {
+        toast({
+          variant: "destructive",
+          title: "Campo obrigatório",
+          description: "Por favor, selecione a forma de envio.",
+        });
+        return false;
+      }
+    }
+    if (step === 5) {
+      if (!formData.cep || !formData.street || !formData.city || !formData.state) {
         toast({
           variant: "destructive",
           title: "Campos obrigatórios",
-          description: "Por favor, preencha todos os campos de endereço e forma de envio.",
+          description: "Por favor, preencha todos os campos de endereço.",
         });
         return false;
       }
@@ -430,48 +446,43 @@ export default function RegistrationForm() {
                   </RadioGroup>
                 </div>
 
-                <div>
-                  <Label htmlFor="coupon">Cupom de Desconto</Label>
-                  <Input
-                    id="coupon"
-                    value={formData.coupon}
-                    onChange={(e) => handleInputChange("coupon", e.target.value)}
-                    placeholder="Digite seu cupom (opcional)"
-                  />
-                </div>
 
-                {Object.entries(PLANS).map(([operator, plans]) => (
-                  <div key={operator} className="space-y-2">
-                    <h4 className="font-semibold text-lg">{operator}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {plans.map((plan) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {Object.entries(PLANS).map(([operator, plans]) => (
+                    plans.map((plan) => {
+                      const colors = operatorColors[operator] || operatorColors.VIVO;
+                      return (
                         <Card
                           key={plan.id}
                           onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
                           className={cn(
-                            "p-4 cursor-pointer transition-all hover:shadow-card",
+                            "cursor-pointer transition-all hover:shadow-lg overflow-hidden",
                             formData.planId === plan.id
-                              ? "ring-2 ring-accent shadow-glow bg-accent/5"
-                              : "hover:border-accent/50"
+                              ? "ring-4 ring-offset-2 shadow-xl scale-105"
+                              : "hover:scale-102",
+                            `ring-${operator === 'VIVO' ? 'purple' : operator === 'TIM' ? 'blue' : 'red'}-600`
                           )}
                         >
-                          <div className="text-center">
-                            <div className="font-bold text-2xl mb-1">
+                          <div className={cn("p-3 text-center", colors.bg, colors.text)}>
+                            <div className="font-bold text-lg">{operator}</div>
+                          </div>
+                          <div className="p-4 text-center">
+                            <div className="font-bold text-3xl mb-1">
                               {plan.name.split(" ")[0]}
                             </div>
-                            <div className="text-xs text-muted-foreground mb-2">
+                            <div className="text-xs text-muted-foreground mb-3">
                               {plan.name.replace(plan.name.split(" ")[0], "")}
                             </div>
-                            <div className="text-xl font-bold text-accent">
+                            <div className={cn("text-2xl font-bold", operator === 'VIVO' ? 'text-purple-600' : operator === 'TIM' ? 'text-blue-600' : 'text-red-600')}>
                               R$ {plan.price}
                               <span className="text-sm font-normal text-muted-foreground">/mês</span>
                             </div>
                           </div>
                         </Card>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                      );
+                    })
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -568,8 +579,54 @@ export default function RegistrationForm() {
             </div>
           )}
 
-          {/* Step 4: Address */}
+          {/* Step 4: Delivery Method */}
           {step === 4 && (
+            <div className="space-y-6 animate-slide-in">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">Forma de Envio</h3>
+              </div>
+
+              <RadioGroup
+                value={formData.deliveryMethod}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, deliveryMethod: value }))}
+                className="space-y-4"
+              >
+                <div className={cn(
+                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                  formData.deliveryMethod === "carta" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
+                )}>
+                  <RadioGroupItem value="carta" id="carta" className="mt-1" />
+                  <div className="flex-1">
+                    <Label htmlFor="carta" className="cursor-pointer font-semibold text-base">
+                      Enviar via Carta Registrada
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Para quem vai receber o chip pelos Correios
+                    </p>
+                  </div>
+                </div>
+
+                <div className={cn(
+                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                  formData.deliveryMethod === "associacao" || formData.deliveryMethod === "associado" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
+                )}>
+                  <RadioGroupItem value="associacao" id="associacao" className="mt-1" />
+                  <div className="flex-1">
+                    <Label htmlFor="associacao" className="cursor-pointer font-semibold text-base">
+                      Retirar na Associação ou com um Associado
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Se você vai retirar o chip pessoalmente com um representante ou no caso dos planos da Vivo, vai comprar um chip para ativar de forma imediata
+                    </p>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
+
+          {/* Step 5: Address */}
+          {step === 5 && (
             <div className="space-y-4 animate-slide-in">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -657,20 +714,6 @@ export default function RegistrationForm() {
                   placeholder="Apto, Bloco, etc."
                 />
               </div>
-
-              <div className="pt-4 border-t">
-                <Label htmlFor="deliveryMethod">Forma de Envio *</Label>
-                <Select value={formData.deliveryMethod} onValueChange={(value) => setFormData(prev => ({ ...prev, deliveryMethod: value }))}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Selecione a forma de envio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="carta">Via carta registrada</SelectItem>
-                    <SelectItem value="associacao">Retirar na associação</SelectItem>
-                    <SelectItem value="associado">Com um associado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           )}
 
@@ -715,6 +758,11 @@ export default function RegistrationForm() {
             )}
           </div>
         </form>
+
+        {/* Footer */}
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          <p>2025 © Federal Associados (CNPJ 29.383.343/0001-64) - Todos os direitos reservados</p>
+        </div>
       </Card>
     </div>
   );
