@@ -384,40 +384,6 @@ export default function RegistrationForm() {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="px-6 pt-6">
-          <div className="flex items-center justify-between mb-2">
-            {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all",
-                    step >= s
-                      ? "bg-gradient-accent text-accent-foreground shadow-glow"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {s}
-                </div>
-                {s < 4 && (
-                  <div
-                    className={cn(
-                      "h-1 flex-1 mx-2 rounded transition-all",
-                      step > s ? "bg-accent" : "bg-muted"
-                    )}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-6">
-            <span>Plano</span>
-            <span>Dados Pessoais</span>
-            <span>Contato</span>
-            <span>Endereço</span>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Step 1: Plan Selection */}
           {step === 1 && (
