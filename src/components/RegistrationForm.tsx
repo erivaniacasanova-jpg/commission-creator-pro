@@ -25,6 +25,7 @@ interface FormData {
   number: string;
   complement: string;
   typeChip: "fisico" | "eSim";
+  deliveryMethod: string;
   coupon: string;
   planId: string;
   planOperator: string;
@@ -100,6 +101,7 @@ export default function RegistrationForm() {
     number: "",
     complement: "",
     typeChip: "fisico",
+    deliveryMethod: "",
     coupon: "",
     planId: "",
     planOperator: "",
@@ -182,6 +184,16 @@ export default function RegistrationForm() {
 
   const validateStep = () => {
     if (step === 1) {
+      if (!formData.planId) {
+        toast({
+          variant: "destructive",
+          title: "Selecione um plano",
+          description: "Por favor, escolha um plano para continuar.",
+        });
+        return false;
+      }
+    }
+    if (step === 2) {
       if (!formData.cpf || !formData.birth || !formData.name) {
         toast({
           variant: "destructive",
@@ -191,7 +203,7 @@ export default function RegistrationForm() {
         return false;
       }
     }
-    if (step === 2) {
+    if (step === 3) {
       if (!formData.email || !formData.phone || !formData.cell) {
         toast({
           variant: "destructive",
@@ -201,12 +213,12 @@ export default function RegistrationForm() {
         return false;
       }
     }
-    if (step === 3) {
-      if (!formData.cep || !formData.street || !formData.city || !formData.state) {
+    if (step === 4) {
+      if (!formData.cep || !formData.street || !formData.city || !formData.state || !formData.deliveryMethod) {
         toast({
           variant: "destructive",
           title: "Campos obrigatórios",
-          description: "Por favor, preencha todos os campos de endereço.",
+          description: "Por favor, preencha todos os campos de endereço e forma de envio.",
         });
         return false;
       }
@@ -227,12 +239,7 @@ export default function RegistrationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.planId) {
-      toast({
-        variant: "destructive",
-        title: "Selecione um plano",
-        description: "Por favor, escolha um plano para continuar.",
-      });
+    if (!validateStep()) {
       return;
     }
 
@@ -256,6 +263,7 @@ export default function RegistrationForm() {
           number: formData.number,
           complement: formData.complement,
           typeChip: formData.typeChip,
+          deliveryMethod: formData.deliveryMethod,
           coupon: formData.coupon,
           planId: formData.planId,
         }
@@ -369,16 +377,89 @@ export default function RegistrationForm() {
             ))}
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mb-6">
+            <span>Plano</span>
             <span>Dados Pessoais</span>
             <span>Contato</span>
             <span>Endereço</span>
-            <span>Plano</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Step 1: Personal Data */}
+          {/* Step 1: Plan Selection */}
           {step === 1 && (
+            <div className="space-y-6 animate-slide-in">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">Escolha seu Plano</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="typeChip">Tipo de Chip</Label>
+                  <RadioGroup
+                    value={formData.typeChip}
+                    onValueChange={(value: "fisico" | "eSim") => setFormData(prev => ({ ...prev, typeChip: value }))}
+                    className="flex gap-4 mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="fisico" id="fisico" />
+                      <Label htmlFor="fisico" className="cursor-pointer">Chip Físico</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="eSim" id="eSim" />
+                      <Label htmlFor="eSim" className="cursor-pointer">e-SIM</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label htmlFor="coupon">Cupom de Desconto</Label>
+                  <Input
+                    id="coupon"
+                    value={formData.coupon}
+                    onChange={(e) => handleInputChange("coupon", e.target.value)}
+                    placeholder="Digite seu cupom (opcional)"
+                  />
+                </div>
+
+                {Object.entries(PLANS).map(([operator, plans]) => (
+                  <div key={operator} className="space-y-2">
+                    <h4 className="font-semibold text-lg">{operator}</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {plans.map((plan) => (
+                        <Card
+                          key={plan.id}
+                          onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
+                          className={cn(
+                            "p-4 cursor-pointer transition-all hover:shadow-card",
+                            formData.planId === plan.id
+                              ? "ring-2 ring-accent shadow-glow bg-accent/5"
+                              : "hover:border-accent/50"
+                          )}
+                        >
+                          <div className="text-center">
+                            <div className="font-bold text-2xl mb-1">
+                              {plan.name.split(" ")[0]}
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-2">
+                              {plan.name.replace(plan.name.split(" ")[0], "")}
+                            </div>
+                            <div className="text-xl font-bold text-accent">
+                              R$ {plan.price}
+                              <span className="text-sm font-normal text-muted-foreground">/mês</span>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Personal Data */}
+          {step === 2 && (
             <div className="space-y-4 animate-slide-in">
               <div className="flex items-center gap-2 mb-4">
                 <User className="w-5 h-5 text-primary" />
@@ -422,8 +503,8 @@ export default function RegistrationForm() {
             </div>
           )}
 
-          {/* Step 2: Contact */}
-          {step === 2 && (
+          {/* Step 3: Contact */}
+          {step === 3 && (
             <div className="space-y-4 animate-slide-in">
               <div className="flex items-center gap-2 mb-4">
                 <Smartphone className="w-5 h-5 text-primary" />
@@ -469,8 +550,8 @@ export default function RegistrationForm() {
             </div>
           )}
 
-          {/* Step 3: Address */}
-          {step === 3 && (
+          {/* Step 4: Address */}
+          {step === 4 && (
             <div className="space-y-4 animate-slide-in">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -558,78 +639,19 @@ export default function RegistrationForm() {
                   placeholder="Apto, Bloco, etc."
                 />
               </div>
-            </div>
-          )}
 
-          {/* Step 4: Plan Selection */}
-          {step === 4 && (
-            <div className="space-y-6 animate-slide-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-semibold">Escolha seu Plano</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="typeChip">Tipo de Chip</Label>
-                  <RadioGroup
-                    value={formData.typeChip}
-                    onValueChange={(value: "fisico" | "eSim") => setFormData(prev => ({ ...prev, typeChip: value }))}
-                    className="flex gap-4 mt-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="fisico" id="fisico" />
-                      <Label htmlFor="fisico" className="cursor-pointer">Chip Físico</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="eSim" id="eSim" />
-                      <Label htmlFor="eSim" className="cursor-pointer">e-SIM</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div>
-                  <Label htmlFor="coupon">Cupom de Desconto</Label>
-                  <Input
-                    id="coupon"
-                    value={formData.coupon}
-                    onChange={(e) => handleInputChange("coupon", e.target.value)}
-                    placeholder="Digite seu cupom (opcional)"
-                  />
-                </div>
-
-                {Object.entries(PLANS).map(([operator, plans]) => (
-                  <div key={operator} className="space-y-2">
-                    <h4 className="font-semibold text-lg">{operator}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {plans.map((plan) => (
-                        <Card
-                          key={plan.id}
-                          onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
-                          className={cn(
-                            "p-4 cursor-pointer transition-all hover:shadow-card",
-                            formData.planId === plan.id
-                              ? "ring-2 ring-accent shadow-glow bg-accent/5"
-                              : "hover:border-accent/50"
-                          )}
-                        >
-                          <div className="text-center">
-                            <div className="font-bold text-2xl mb-1">
-                              {plan.name.split(" ")[0]}
-                            </div>
-                            <div className="text-xs text-muted-foreground mb-2">
-                              {plan.name.replace(plan.name.split(" ")[0], "")}
-                            </div>
-                            <div className="text-xl font-bold text-accent">
-                              R$ {plan.price}
-                              <span className="text-sm font-normal text-muted-foreground">/mês</span>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+              <div className="pt-4 border-t">
+                <Label htmlFor="deliveryMethod">Forma de Envio *</Label>
+                <Select value={formData.deliveryMethod} onValueChange={(value) => setFormData(prev => ({ ...prev, deliveryMethod: value }))}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Selecione a forma de envio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="carta">Via carta registrada</SelectItem>
+                    <SelectItem value="associacao">Retirar na associação</SelectItem>
+                    <SelectItem value="associado">Com um associado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
