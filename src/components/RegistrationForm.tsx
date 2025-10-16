@@ -9,6 +9,7 @@ import { CheckCircle2, ChevronRight, ChevronLeft, User, MapPin, Smartphone, Shie
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { sponsorSupabase } from "@/integrations/supabase/sponsor-client";
 
 interface FormData {
   cpf: string;
@@ -104,7 +105,7 @@ export default function RegistrationForm() {
 
   const fetchSponsorData = async (id: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await sponsorSupabase
         .from('associados')
         .select('nome, id')
         .eq('id', id)
