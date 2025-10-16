@@ -416,11 +416,13 @@ export default function RegistrationForm() {
             </div>
             <Shield className="w-12 h-12 md:w-16 md:h-16 opacity-80" />
           </div>
-          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-            <p className="text-xs md:text-sm opacity-90">Patrocinador</p>
-            <p className="font-semibold text-sm md:text-base">{sponsorName}</p>
-            <p className="text-xs opacity-75">Código: {sponsorCode}</p>
-          </div>
+          {sponsorId && (
+            <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+              <p className="text-xs md:text-sm opacity-90">Patrocinador</p>
+              <p className="font-semibold text-sm md:text-base">{sponsorName}</p>
+              {sponsorCode && <p className="text-xs opacity-75">Código: {sponsorCode}</p>}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -442,7 +444,7 @@ export default function RegistrationForm() {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="fisico" id="fisico" />
-                      <Label htmlFor="fisico" className="cursor-pointer">Chip Físico</Label>
+                      <Label htmlFor="fisico" className="cursor-pointer">Físico</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="eSim" id="eSim" />
@@ -451,44 +453,46 @@ export default function RegistrationForm() {
                   </RadioGroup>
                 </div>
 
-
-                <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
-                  <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4 md:pb-0">
-                    {Object.entries(PLANS).map(([operator, plans]) => (
-                      plans.map((plan) => {
-                        const colors = operatorColors[operator] || operatorColors.VIVO;
-                        return (
-                          <Card
-                            key={plan.id}
-                            onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
-                            className={cn(
-                              "cursor-pointer transition-all hover:shadow-lg overflow-hidden flex-shrink-0 w-[280px] md:w-auto",
-                              formData.planId === plan.id
-                                ? "ring-4 ring-offset-2 shadow-xl scale-105"
-                                : "hover:scale-102",
-                              `ring-${operator === 'VIVO' ? 'purple' : operator === 'TIM' ? 'blue' : 'red'}-600`
-                            )}
-                          >
-                            <div className={cn("p-3 text-center", colors.bg, colors.text)}>
-                              <div className="font-bold text-lg">{operator}</div>
-                            </div>
-                            <div className="p-4 text-center">
-                              <div className="font-bold text-3xl mb-1">
-                                {plan.name.split(" ")[0]}
-                              </div>
-                              <div className="text-xs text-muted-foreground mb-3">
-                                {plan.name.replace(plan.name.split(" ")[0], "")}
-                              </div>
-                              <div className={cn("text-2xl font-bold", operator === 'VIVO' ? 'text-purple-600' : operator === 'TIM' ? 'text-blue-600' : 'text-red-600')}>
-                                R$ {plan.price}
-                                <span className="text-sm font-normal text-muted-foreground">/mês</span>
-                              </div>
-                            </div>
-                          </Card>
-                        );
-                      })
-                    ))}
-                  </div>
+                <div>
+                  <Label htmlFor="plan" className="text-base">Plano <span className="text-red-500">*</span></Label>
+                  <Select
+                    value={formData.planId}
+                    onValueChange={(value) => {
+                      const selectedPlan = Object.entries(PLANS).find(([, plans]) =>
+                        plans.some(p => p.id === value)
+                      );
+                      if (selectedPlan) {
+                        setFormData(prev => ({
+                          ...prev,
+                          planId: value,
+                          planOperator: selectedPlan[0]
+                        }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger id="plan" className="w-full">
+                      <SelectValue placeholder="Selecione um plano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(PLANS).map(([operator, plans]) => (
+                        <div key={operator}>
+                          <div className={cn(
+                            "px-2 py-2 font-bold text-center text-sm",
+                            operator === 'VIVO' && "text-purple-600",
+                            operator === 'TIM' && "text-blue-600",
+                            operator === 'CLARO' && "text-red-600"
+                          )}>
+                            {operator}
+                          </div>
+                          {plans.map((plan) => (
+                            <SelectItem key={plan.id} value={plan.id}>
+                              {operator} - {plan.name} - R$ {plan.price}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
