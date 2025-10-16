@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,8 +31,6 @@ interface FormData {
   planOperator: string;
 }
 
-const REFERRAL_CODE = "110956";
-const SPONSOR_NAME = "Francisco Eliedisom Dos Santos";
 
 const PLANS = {
   VIVO: [
@@ -86,7 +84,47 @@ export default function RegistrationForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState<string>("");
+  const [sponsorName, setSponsorName] = useState<string>("Carregando...");
+  const [sponsorCode, setSponsorCode] = useState<string>("");
+  const [sponsorId, setSponsorId] = useState<string>("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (id) {
+      setSponsorId(id);
+      fetchSponsorData(id);
+    } else {
+      setSponsorName("Patrocinador não encontrado");
+      setSponsorCode("");
+    }
+  }, []);
+
+  const fetchSponsorData = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('associados')
+        .select('nome, id')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setSponsorName(data.nome);
+        setSponsorCode(data.id);
+      } else {
+        setSponsorName("Patrocinador não encontrado");
+        setSponsorCode("");
+      }
+    } catch (error) {
+      console.error('Erro ao buscar patrocinador:', error);
+      setSponsorName("Erro ao carregar patrocinador");
+      setSponsorCode("");
+    }
+  };
   const [formData, setFormData] = useState<FormData>({
     cpf: "",
     birth: "",
@@ -379,8 +417,8 @@ export default function RegistrationForm() {
           </div>
           <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
             <p className="text-xs md:text-sm opacity-90">Patrocinador</p>
-            <p className="font-semibold text-sm md:text-base">{SPONSOR_NAME}</p>
-            <p className="text-xs opacity-75">Código: {REFERRAL_CODE}</p>
+            <p className="font-semibold text-sm md:text-base">{sponsorName}</p>
+            <p className="text-xs opacity-75">Código: {sponsorCode}</p>
           </div>
         </div>
 
