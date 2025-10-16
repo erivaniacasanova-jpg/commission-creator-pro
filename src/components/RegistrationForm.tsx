@@ -85,6 +85,7 @@ export default function RegistrationForm() {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState<string>("");
   const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     cpf: "",
@@ -291,6 +292,9 @@ export default function RegistrationForm() {
 
       // Sucesso!
       setIsSubmitted(true);
+      if (data?.whatsappUrl) {
+        setWhatsappUrl(data.whatsappUrl);
+      }
       toast({
         title: "Cadastro realizado com sucesso!",
         description: "Seu cadastro foi enviado para a Federal Associados.",
@@ -317,15 +321,29 @@ export default function RegistrationForm() {
             </div>
           </div>
           <h2 className="text-3xl font-bold mb-4">Cadastro Concluído!</h2>
-          <p className="text-muted-foreground mb-8">
-            Seu cadastro foi realizado com sucesso. Em breve você receberá um email de confirmação com os próximos passos.
+          <p className="text-muted-foreground mb-6">
+            Seu cadastro foi realizado com sucesso e enviado para a Federal Associados com o código de patrocinador <strong>110956</strong>.
           </p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-          >
-            Fazer novo cadastro
-          </Button>
+          <p className="text-sm text-muted-foreground mb-8">
+            Suas comissões serão processadas automaticamente pela empresa.
+          </p>
+          <div className="space-y-3">
+            {whatsappUrl && (
+              <Button
+                onClick={() => window.location.href = whatsappUrl}
+                className="w-full bg-green-600 hover:bg-green-700 text-white transition-colors"
+              >
+                Continuar no WhatsApp
+              </Button>
+            )}
+            <Button
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="w-full"
+            >
+              Fazer novo cadastro
+            </Button>
+          </div>
         </Card>
       </div>
     );
