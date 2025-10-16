@@ -101,6 +101,11 @@ export default function RegistrationForm() {
   }, []);
 
   const fetchSponsorData = async (id: string) => {
+    if (!sponsorSupabase) {
+      console.warn('Sponsor Supabase client not configured');
+      return;
+    }
+
     try {
       const { data, error } = await sponsorSupabase
         .from('associados')
