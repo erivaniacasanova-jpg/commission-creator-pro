@@ -85,9 +85,9 @@ export default function RegistrationForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState<string>("");
-  const [sponsorName, setSponsorName] = useState<string>("Carregando...");
-  const [sponsorCode, setSponsorCode] = useState<string>("");
-  const [sponsorId, setSponsorId] = useState<string>("");
+  const [sponsorName, setSponsorName] = useState<string>("Francisco Eliedisom Dos Santos");
+  const [sponsorCode, setSponsorCode] = useState<string>("110956");
+  const [sponsorId, setSponsorId] = useState<string>("110956");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -97,9 +97,6 @@ export default function RegistrationForm() {
     if (id) {
       setSponsorId(id);
       fetchSponsorData(id);
-    } else {
-      setSponsorName("Patrocinador não encontrado");
-      setSponsorCode("");
     }
   }, []);
 
@@ -416,13 +413,11 @@ export default function RegistrationForm() {
             </div>
             <Shield className="w-12 h-12 md:w-16 md:h-16 opacity-80" />
           </div>
-          {sponsorId && (
-            <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-              <p className="text-xs md:text-sm opacity-90">Patrocinador</p>
-              <p className="font-semibold text-sm md:text-base">{sponsorName}</p>
-              {sponsorCode && <p className="text-xs opacity-75">Código: {sponsorCode}</p>}
-            </div>
-          )}
+          <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+            <p className="text-xs md:text-sm opacity-90">Patrocinador</p>
+            <p className="font-semibold text-sm md:text-base">{sponsorName}</p>
+            <p className="text-xs opacity-75">Código: {sponsorCode}</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
