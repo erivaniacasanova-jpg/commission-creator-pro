@@ -451,41 +451,43 @@ export default function RegistrationForm() {
                 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {Object.entries(PLANS).map(([operator, plans]) => (
-                    plans.map((plan) => {
-                      const colors = operatorColors[operator] || operatorColors.VIVO;
-                      return (
-                        <Card
-                          key={plan.id}
-                          onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
-                          className={cn(
-                            "cursor-pointer transition-all hover:shadow-lg overflow-hidden",
-                            formData.planId === plan.id
-                              ? "ring-4 ring-offset-2 shadow-xl scale-105"
-                              : "hover:scale-102",
-                            `ring-${operator === 'VIVO' ? 'purple' : operator === 'TIM' ? 'blue' : 'red'}-600`
-                          )}
-                        >
-                          <div className={cn("p-3 text-center", colors.bg, colors.text)}>
-                            <div className="font-bold text-lg">{operator}</div>
-                          </div>
-                          <div className="p-4 text-center">
-                            <div className="font-bold text-3xl mb-1">
-                              {plan.name.split(" ")[0]}
+                <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+                  <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4 md:pb-0">
+                    {Object.entries(PLANS).map(([operator, plans]) => (
+                      plans.map((plan) => {
+                        const colors = operatorColors[operator] || operatorColors.VIVO;
+                        return (
+                          <Card
+                            key={plan.id}
+                            onClick={() => setFormData(prev => ({ ...prev, planId: plan.id, planOperator: operator }))}
+                            className={cn(
+                              "cursor-pointer transition-all hover:shadow-lg overflow-hidden flex-shrink-0 w-[280px] md:w-auto",
+                              formData.planId === plan.id
+                                ? "ring-4 ring-offset-2 shadow-xl scale-105"
+                                : "hover:scale-102",
+                              `ring-${operator === 'VIVO' ? 'purple' : operator === 'TIM' ? 'blue' : 'red'}-600`
+                            )}
+                          >
+                            <div className={cn("p-3 text-center", colors.bg, colors.text)}>
+                              <div className="font-bold text-lg">{operator}</div>
                             </div>
-                            <div className="text-xs text-muted-foreground mb-3">
-                              {plan.name.replace(plan.name.split(" ")[0], "")}
+                            <div className="p-4 text-center">
+                              <div className="font-bold text-3xl mb-1">
+                                {plan.name.split(" ")[0]}
+                              </div>
+                              <div className="text-xs text-muted-foreground mb-3">
+                                {plan.name.replace(plan.name.split(" ")[0], "")}
+                              </div>
+                              <div className={cn("text-2xl font-bold", operator === 'VIVO' ? 'text-purple-600' : operator === 'TIM' ? 'text-blue-600' : 'text-red-600')}>
+                                R$ {plan.price}
+                                <span className="text-sm font-normal text-muted-foreground">/mês</span>
+                              </div>
                             </div>
-                            <div className={cn("text-2xl font-bold", operator === 'VIVO' ? 'text-purple-600' : operator === 'TIM' ? 'text-blue-600' : 'text-red-600')}>
-                              R$ {plan.price}
-                              <span className="text-sm font-normal text-muted-foreground">/mês</span>
-                            </div>
-                          </div>
-                        </Card>
-                      );
-                    })
-                  ))}
+                          </Card>
+                        );
+                      })
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -499,7 +501,7 @@ export default function RegistrationForm() {
                 <h3 className="text-xl font-semibold">Dados Pessoais</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="cpf">CPF *</Label>
                   <Input
@@ -556,7 +558,7 @@ export default function RegistrationForm() {
                 />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="phone">Telefone *</Label>
                   <Input
