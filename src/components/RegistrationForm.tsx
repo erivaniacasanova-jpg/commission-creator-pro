@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle2, ChevronRight, ChevronLeft, User, MapPin, Smartphone, Shield } from "lucide-react";
+import { CheckCircle2, ChevronRight, ChevronLeft, User, MapPin, Smartphone, Shield, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   cpf: string;
@@ -82,6 +83,7 @@ const STATES = [
 export default function RegistrationForm() {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     cpf: "",
@@ -222,7 +224,7 @@ export default function RegistrationForm() {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.planId) {
@@ -234,14 +236,67 @@ export default function RegistrationForm() {
       return;
     }
 
-    // Here you would normally send data to your backend
-    console.log("Form data:", { ...formData, father: REFERRAL_CODE });
-    
-    setIsSubmitted(true);
-    toast({
-      title: "Cadastro realizado com sucesso!",
-      description: "Em breve você receberá uma confirmação por email.",
-    });
+    setIsSubmitting(true);
+
+    try {
+      // Enviar dados para a API da Federal Associados através da edge function
+      const { data, error } = await supabase.functions.invoke('submit-registration', {
+        body: {
+          cpf: formData.cpf,
+          birth: formData.birth,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          cell: formData.cell,
+          cep: formData.cep,
+          district: formData.district,
+          city: formData.city,
+          state: formData.state,
+          street: formData.street,
+          number: formData.number,
+          complement: formData.complement,
+          typeChip: formData.typeChip,
+          coupon: formData.coupon,
+          planId: formData.planId,
+        }
+      });
+
+      if (error) {
+        console.error('Error submitting registration:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao enviar cadastro",
+          description: "Ocorreu um erro ao processar seu cadastro. Tente novamente.",
+        });
+        return;
+      }
+
+      if (!data?.success) {
+        console.error('Registration failed:', data);
+        toast({
+          variant: "destructive",
+          title: "Erro no cadastro",
+          description: data?.error || "Não foi possível completar o cadastro.",
+        });
+        return;
+      }
+
+      // Sucesso!
+      setIsSubmitted(true);
+      toast({
+        title: "Cadastro realizado com sucesso!",
+        description: "Seu cadastro foi enviado para a Federal Associados.",
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao processar seu cadastro. Tente novamente.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -605,9 +660,17 @@ export default function RegistrationForm() {
             ) : (
               <Button
                 type="submit"
-                className="ml-auto bg-gradient-success hover:opacity-90 transition-opacity shadow-glow"
+                disabled={isSubmitting}
+                className="ml-auto bg-gradient-success hover:opacity-90 transition-opacity shadow-glow disabled:opacity-50"
               >
-                Concluir Cadastro
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Concluir Cadastro"
+                )}
               </Button>
             )}
           </div>
