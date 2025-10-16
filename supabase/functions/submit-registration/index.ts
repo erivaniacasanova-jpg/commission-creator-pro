@@ -42,13 +42,8 @@ Deno.serve(async (req) => {
     
     // Dados pessoais
     params.append('cpf', formData.cpf || '');
-    // Converter data do formato YYYY-MM-DD para DD/MM/YYYY se necessário
-    let birthFormatted = formData.birth || '';
-    if (birthFormatted && birthFormatted.includes('-')) {
-      const [year, month, day] = birthFormatted.split('-');
-      birthFormatted = `${day}/${month}/${year}`;
-    }
-    params.append('birth', birthFormatted);
+    // A data vem no formato YYYY-MM-DD, precisa enviar assim mesmo
+    params.append('birth', formData.birth || '');
     params.append('name', formData.name || '');
     
     // Contato

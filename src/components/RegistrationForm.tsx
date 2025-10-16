@@ -262,21 +262,21 @@ export default function RegistrationForm() {
       }
     }
     if (step === 4) {
-      if (!formData.deliveryMethod) {
-        toast({
-          variant: "destructive",
-          title: "Campo obrigatório",
-          description: "Por favor, selecione a forma de envio.",
-        });
-        return false;
-      }
-    }
-    if (step === 5) {
       if (!formData.cep || !formData.street || !formData.city || !formData.state) {
         toast({
           variant: "destructive",
           title: "Campos obrigatórios",
           description: "Por favor, preencha todos os campos de endereço.",
+        });
+        return false;
+      }
+    }
+    if (step === 5) {
+      if (!formData.deliveryMethod) {
+        toast({
+          variant: "destructive",
+          title: "Campo obrigatório",
+          description: "Por favor, selecione a forma de envio.",
         });
         return false;
       }
@@ -590,54 +590,8 @@ export default function RegistrationForm() {
             </div>
           )}
 
-          {/* Step 4: Delivery Method */}
+          {/* Step 4: Endereço */}
           {step === 4 && (
-            <div className="space-y-6 animate-slide-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-semibold">Forma de Envio</h3>
-              </div>
-
-              <RadioGroup
-                value={formData.deliveryMethod}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, deliveryMethod: value }))}
-                className="space-y-4"
-              >
-                <div className={cn(
-                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
-                  formData.deliveryMethod === "carta" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
-                )}>
-                  <RadioGroupItem value="carta" id="carta" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="carta" className="cursor-pointer font-semibold text-base">
-                      Enviar via Carta Registrada
-                    </Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Para quem vai receber o chip pelos Correios
-                    </p>
-                  </div>
-                </div>
-
-                <div className={cn(
-                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
-                  formData.deliveryMethod === "associacao" || formData.deliveryMethod === "associado" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
-                )}>
-                  <RadioGroupItem value="associacao" id="associacao" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="associacao" className="cursor-pointer font-semibold text-base">
-                      Retirar na Associação ou com um Associado
-                    </Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Se você vai retirar o chip pessoalmente com um representante ou no caso dos planos da Vivo, vai comprar um chip para ativar de forma imediata
-                    </p>
-                  </div>
-                </div>
-              </RadioGroup>
-            </div>
-          )}
-
-          {/* Step 5: Address */}
-          {step === 5 && (
             <div className="space-y-4 animate-slide-in">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -725,6 +679,52 @@ export default function RegistrationForm() {
                   placeholder="Apto, Bloco, etc."
                 />
               </div>
+            </div>
+          )}
+
+          {/* Step 5: Forma de Envio */}
+          {step === 5 && (
+            <div className="space-y-6 animate-slide-in">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">Forma de Envio</h3>
+              </div>
+
+              <RadioGroup
+                value={formData.deliveryMethod}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, deliveryMethod: value }))}
+                className="space-y-4"
+              >
+                <div className={cn(
+                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                  formData.deliveryMethod === "carta" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
+                )}>
+                  <RadioGroupItem value="carta" id="carta" className="mt-1" />
+                  <div className="flex-1">
+                    <Label htmlFor="carta" className="cursor-pointer font-semibold text-base">
+                      Enviar via Carta Registrada
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Para quem vai receber o chip pelos Correios
+                    </p>
+                  </div>
+                </div>
+
+                <div className={cn(
+                  "flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
+                  formData.deliveryMethod === "associacao" || formData.deliveryMethod === "associado" ? "border-accent bg-accent/5" : "border-border hover:border-accent/50"
+                )}>
+                  <RadioGroupItem value="associacao" id="associacao" className="mt-1" />
+                  <div className="flex-1">
+                    <Label htmlFor="associacao" className="cursor-pointer font-semibold text-base">
+                      Retirar na Associação ou com um Associado
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Se você vai retirar o chip pessoalmente com um representante ou no caso dos planos da Vivo, vai comprar um chip para ativar de forma imediata
+                    </p>
+                  </div>
+                </div>
+              </RadioGroup>
             </div>
           )}
 
